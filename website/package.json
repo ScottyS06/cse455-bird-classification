@@ -2,6 +2,7 @@
   "name": "final-project",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://scottys06.github.io/cse455-bird-classification/",
   "dependencies": {
     "@codemirror/lang-python": "^6.1.2",
     "@testing-library/jest-dom": "^5.16.5",

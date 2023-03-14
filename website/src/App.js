@@ -2,6 +2,7 @@ import "./App.css";
 import React from "react";
 import styled from "styled-components";
 import { Constant } from "./const";
+import transforms from './transforms.png';
 
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
@@ -78,6 +79,10 @@ const ProjectVideo = styled.iframe`
   height: 50vh;
 `;
 
+const TransformsImage = styled.img`
+  width: 100%;
+`
+
 function App() {
   return (
     <>
@@ -126,7 +131,7 @@ function App() {
           Since the test dataset that was provided did not include labels for
           the images it was difficult to see how well the model was generalizing
           and performing on unseen data. One approach would have been to submit
-          the models predictions to the kaggle competition everytime I wanted to
+          the models predictions to the kaggle competition every time I wanted to
           check the models performance but this was not a feasible or practical
           solution. Thus, I decided to split the training dataset into two sub
           datasets one for training and one for validation. I used a 90-10 split
@@ -157,6 +162,7 @@ function App() {
           great impact from the perspective transform.
         </Description>
         <CodeMirror value={Constant.DATA_TRANSFORMS} extensions={[python()]} />
+        <TransformsImage alt="transforms" src={transforms}></TransformsImage>
       </Container>
       <Container>
         <SectionHeader>Training Techniques</SectionHeader>
@@ -175,7 +181,7 @@ function App() {
         </ol>
         <Description>
           I wanted to test a wide variety of models with various architectures.
-          Also, from my preliminary resarch I found that Resnet
+          Also, from my preliminary research I found that Resnet
           models are good for transfer learning and offer a less complex
           architecture that is relatively fast compared to other models which
           can have over 100 million parameters. This was ideal because with the limited
@@ -199,7 +205,7 @@ function App() {
           resource limit. I had to tune this parameter to smaller values such as
           32 or 64 for larger models like EfficientNet and ConvNeXt.
         </Description>
-        <SectionSubHeader>Other Approaches (unsuccessful)</SectionSubHeader>
+        <SectionSubHeader id="OtherApproaches">Other Approaches (unsuccessful)</SectionSubHeader>
         <Description>
           I also tried using some more unique approaches to training in hopes of getting higher overall accuracy. These include the following:
           <ol>
@@ -254,11 +260,11 @@ function App() {
         <Description>
           <ol>
             <ListItem>Google Colab and Kaggle both had a limited amount of computational resources</ListItem>
-            This was one of the main challenges I faced. With the limited resources it was difficult to train very large models and I had to be especially mindful of the size of the images I was using for training as well as the batch size. The training process was also very slow so it was difficult to test out hypotheses quickly to determine if they were worth investigating further. This caused me to spend a lot of time on techniques that were not effective and did not improve the overall model perfomance. 
+            This was one of the main challenges I faced. With the limited resources it was difficult to train very large models and I had to be especially mindful of the size of the images I was using for training as well as the batch size. The training process was also very slow so it was difficult to test out hypotheses quickly to determine if they were worth investigating further. This caused me to spend a lot of time on techniques that were not effective and did not improve the overall model performance. 
             <ListItem>Dataloaders do not work well with GPUs and can consume lots of CPU resources</ListItem>
             Loading the data directly from dataloaders and performing transformations during the training process was computationally expensive and slow. As described in the <a href="#DataProcessing">Data Processing Section</a>, I tried resizing images and saving them as tensors, however, the custom dataset module I wrote did not load the data effectively and was still slow. I decided to then just resize the images offline keeping them in the same format as the provided kaggle dataset.
             <ListItem>Test dataset did not contain labels</ListItem>
-            Without the test labels there was no way to tell how my models were performing on unseen data. Thus, I had to do some research into common practices to overcome this challenge. I read about K-Fold cross validation but this required running the model through several training loops and since training for a few epochs was already taking a along time, I deemed this method unfeasable. I decided to perform a simple random split of the data to generate a validation set.
+            Without the test labels there was no way to tell how my models were performing on unseen data. Thus, I had to do some research into common practices to overcome this challenge. I read about K-Fold cross validation but this required running the model through several training loops and since training for a few epochs was already taking a along time, I deemed this method unfeasible. I decided to perform a simple random split of the data to generate a validation set.
           </ol>
         </Description>
       </Container>
@@ -276,6 +282,18 @@ function App() {
       </Container>
       <Container>
         <SectionHeader>How My Approach Differs From Others</SectionHeader>
+        <Description>
+          My approach differs from others because I experimented with several model architectures and utilized unique data processing and augmentation techniques. Though most of these were unsuccessful I had not seen them be used in other Kaggle/Google Colab notebooks. Firstly, I tested 5 different pretrained models whereas most only trained 1 or 2. I experimented with multiple Resnet architectures, ConvNeXt, and EfficientNet. What I found was that more complex models performed better on the training dataset but were also more prone to overfitting. These models also took longer to train since they had far more parameters than simple models like Resnet18. I found that batch size was an important metric to tune when dealing with large models. I initially started with a batch size of 128 but had to decrease this to 32 to optimize my GPU usage in the constrained environment.
+        </Description>
+        <Description>
+          Additionally, I utilized several data augmentation techniques. Specifically, I applied a Normalize transform to the images using the mean and standard deviation from the ImageNet dataset. I found that this technique greatly helped speed up training especially for the EfficientNet_v2 model in the early epochs during training. I was able to decrease loss from ~6.2 to ~1.2 within one epoch. Reading a few articles online, I found that this normalization technique works well since the birds dataset shares a similar image structure to many of the ImageNet samples.
+        </Description>
+        <Description>
+          Another technique I used that I hadn't seen others do is to freeze half the layers of the pretrained model. I noticed this helped speed up training in the early epochs but hindered final model performance slightly. This is likely because the early layers are good feature extractors which can be applied to a variety of datasets whereas the later layers may be more specific to the ImageNet dataset. I also tried freezing all the layers and only training a final classification layer but found that this did not work well. Retraining all the weights of the model had the best output, specifically for my highest accuracy training setup (Resnet50 with v2 weights), but also took a very long time to train. This is because calculating the gradients for all the parameters is more computationally expensive than a subset of the parameters. This likely also performed well because the ImageNet weights are a good starting point to train the entire network. By training the entire network, the model became less generalized (likely would not perform well on ImageNet) but more suited for bird classification.
+        </Description>
+        <Description>
+          Finally, I also tried a few other unusual approaches such as training on small images and then training further on larger images. I have included more information on this experiment in the <a href="#OtherApproaches">Other Approaches Section</a>
+        </Description>
       </Container>
       <Container>
         <SectionHeader>Resources</SectionHeader>

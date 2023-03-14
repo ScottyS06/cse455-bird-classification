@@ -1,0 +1,37 @@
+name: Build + Deploy
+on:
+  push:
+    branches:
+      - deploy
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./website
+    steps:
+      - name: Checkout
+        timeout-minutes: 5
+        uses: actions/checkout@v2.3.4
+      - name: Initialize
+        timeout-minutes: 10
+        uses: actions/setup-node@v2.4.0
+        with:
+          cache-dependency-path: "./website/package-lock.json"
+          node-version: "14"
+          cache: "npm"
+      - name: Install
+        timeout-minutes: 10
+        run: npm install
+      - name: Build
+        timeout-minutes: 10
+        run: npm run build
+      - name: Prepare Deployment
+        timeout-minutes: 10
+        run: cp build/index.html
+      - name: Deploy
+        timeout-minutes: 10
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          folder: website/build

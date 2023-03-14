@@ -28,7 +28,7 @@ jobs:
         run: npm run build
       - name: Prepare Deployment
         timeout-minutes: 10
-        run: cp build/index.html
+        run: cp build/index.html build/404.html
       - name: Deploy
         timeout-minutes: 10
         uses: JamesIves/github-pages-deploy-action@4.1.4

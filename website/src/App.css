@@ -40,6 +40,10 @@ tr:nth-child(even) {
   color: white;
 }
 
+a:visited {
+  color: blue
+}
+
 .App-link {
   color: #61dafb;
 }

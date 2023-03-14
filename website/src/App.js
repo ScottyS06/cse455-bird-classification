@@ -1,5 +1,5 @@
 import "./App.css";
-import React, { useState } from "react";
+import React from "react";
 import styled from "styled-components";
 import { Constant } from "./const";
 
@@ -83,7 +83,7 @@ function App() {
     <>
       <Header>
         <h1>CSE455 Final Project</h1>
-        <h2>Bird Classification</h2>
+        <h2 style={{ fontWeight: 400 }}>Investigating ImageNet Models on Bird Classification</h2>
         <h4 style={{ fontWeight: "normal" }}>Group Members: Scotty Singh</h4>
       </Header>
       <Container>
@@ -121,7 +121,7 @@ function App() {
             loading and transforming.
           </ListItem>
         </ol>
-        <SectionSubHeader>Approach / Techniques Used</SectionSubHeader>
+        <SectionSubHeader id="DataProcessing">Approach / Techniques Used</SectionSubHeader>
         <Description>
           Since the test dataset that was provided did not include labels for
           the images it was difficult to see how well the model was generalizing
@@ -148,8 +148,7 @@ function App() {
           large, started taking too much memory in the Kaggle notebook. Also,
           the custom dataset I wrote to load this data made OS calls to open and
           read files every time the __get_item__ function was called. This also,
-          slowed down the training process and thus, I decided to abandon this
-          method and switch over to Google Colab.
+          slowed down the training process and thus, I decided to just resize the images and save them as jpegs.
         </Description>
         <Description>
           I also performed some data augmentation to make the model generalize
@@ -163,7 +162,7 @@ function App() {
         <SectionHeader>Training Techniques</SectionHeader>
         <Link>Github</Link>
         <SectionSubHeader>Transfer Learning</SectionSubHeader>
-        For this classification task, I decided to use tranfer learning as the
+        For this classification task, I decided to use transfer learning as the
         main approach to developing a high accuracy model. From class, I learned
         that pretrained models can be good feature extractors and can speed up
         the training process because they are already trained on a similar task.
@@ -175,11 +174,11 @@ function App() {
           <ListItem>EfficientNet v2 </ListItem>
         </ol>
         <Description>
-          I decided to test these models because I wanted to have a good range
-          of experiments. Also, from my preliminary resarch I found that Resnet
+          I wanted to test a wide variety of models with various architectures.
+          Also, from my preliminary resarch I found that Resnet
           models are good for transfer learning and offer a less complex
-          architecture that is relatively fast compared to other models with
-          over 100 million parameters. This was ideal because with the limited
+          architecture that is relatively fast compared to other models which
+          can have over 100 million parameters. This was ideal because with the limited
           resources I had I wanted to use a model that would still perform
           relatively well. I decided to also test the EfficientNet model because
           it had a high top-1 accuracy and was a relatively small model with
@@ -199,6 +198,16 @@ function App() {
           maintaining the model computation within the Google Colab provided
           resource limit. I had to tune this parameter to smaller values such as
           32 or 64 for larger models like EfficientNet and ConvNeXt.
+        </Description>
+        <SectionSubHeader>Other Approaches (unsuccessful)</SectionSubHeader>
+        <Description>
+          I also tried using some more unique approaches to training in hopes of getting higher overall accuracy. These include the following:
+          <ol>
+            <ListItem>After training on smaller images (224x224) change dataset to large images (512x512)</ListItem>
+            My reasoning behind this approach was that after training on smaller images which would likely help identify more high level features such as shape and color of the birds switching to a larger image may help pick out more fine grain details. However, this approach was very wrong. I used the Resnet50 model for this experiment and found that the loss greatly increased after switching to the larger images. This was likely because the model which was good at selecting features for 224x224 images may not be able to identify those features as well in a larger images because the features themselves may look different. Also, with larger images this technique was not effective due to the limited resources offered in Google Colab.
+            <ListItem>Use only a training set with more data augmentation</ListItem>
+            With this approach, I hoped to get the model to see more images of birds and thus perform better as well. However, again this model was not successful. The model began overfitting to the data and it was not possible to tell how the model was generalizing since there was no validation set.
+          </ol>
         </Description>
       </Container>
       <Container>
@@ -223,13 +232,13 @@ function App() {
           </tr>
           <tr>
             <td>EfficientNet - v2</td>
-            <td></td>
+            <td>0.7795</td>
           </tr>
         </table>
         <SectionSubHeader>Resnet50 - v2</SectionSubHeader>
-        <Line options={Constant.options} data={Constant.data} />
+        <Line options={Constant.resnet_options} data={Constant.resnet_data} />
         <SectionSubHeader>EfficientNet</SectionSubHeader>
-        <Line options={Constant.options} data={Constant.data} />
+        <Line options={Constant.efficientnet_options} data={Constant.efficientnet_data} />
       </Container>
       <Container>
         <SectionHeader>Project Video</SectionHeader>
@@ -241,10 +250,40 @@ function App() {
         ></ProjectVideo>
       </Container>
       <Container>
+        <SectionHeader>What problems did I encounter?</SectionHeader>
+        <Description>
+          <ol>
+            <ListItem>Google Colab and Kaggle both had a limited amount of computational resources</ListItem>
+            This was one of the main challenges I faced. With the limited resources it was difficult to train very large models and I had to be especially mindful of the size of the images I was using for training as well as the batch size. The training process was also very slow so it was difficult to test out hypotheses quickly to determine if they were worth investigating further. This caused me to spend a lot of time on techniques that were not effective and did not improve the overall model perfomance. 
+            <ListItem>Dataloaders do not work well with GPUs and can consume lots of CPU resources</ListItem>
+            Loading the data directly from dataloaders and performing transformations during the training process was computationally expensive and slow. As described in the <a href="#DataProcessing">Data Processing Section</a>, I tried resizing images and saving them as tensors, however, the custom dataset module I wrote did not load the data effectively and was still slow. I decided to then just resize the images offline keeping them in the same format as the provided kaggle dataset.
+            <ListItem>Test dataset did not contain labels</ListItem>
+            Without the test labels there was no way to tell how my models were performing on unseen data. Thus, I had to do some research into common practices to overcome this challenge. I read about K-Fold cross validation but this required running the model through several training loops and since training for a few epochs was already taking a along time, I deemed this method unfeasable. I decided to perform a simple random split of the data to generate a validation set.
+          </ol>
+        </Description>
+      </Container>
+      <Container>
         <SectionHeader>Moving Forward</SectionHeader>
+        <Description>
+          In the next steps of this project, I would like learn more about data processing. The constraints on how long I could train, the kind of model I could use, and the types of data augmentation that I could perform were largely affected by the dataset and my understanding of data processing. My initial approach to preprocessing the data and storing resized and transformed data seemed promising but due to time constraints and challenges I had to use a different method. I would like to explore more into this technique and possibly research into how other people reduce the time it takes to load images and how to make the process more efficient.
+        </Description>
+        <Description>
+          I would also like to explore deeper into hyperparameters and model architectures. Though my model accuracy greatly increased from where I first started (~50% to ~80%), there were people who achieved close to 90% accuracy. I believe training longer could not have solely been the reason for this difference and would like to investigate further into possible causes. Maybe more data augmentation or normalization techniques would have helped my model generalize better. Possibly even collecting more data.
+        </Description>
+        <Description>
+          Finally, I would also like to create a simple 4-5 layer convolutional neural network from scratch and see how well it would perform in comparison to the other pretrained models I used. I believe that training solely on the desired dataset could be beneficial as the model would be very good at one thing and may not have biases from other data sources. This is an interesting idea and could be worth investigating more.
+        </Description>
       </Container>
       <Container>
         <SectionHeader>How My Approach Differs From Others</SectionHeader>
+      </Container>
+      <Container>
+        <SectionHeader>Resources</SectionHeader>
+        <ol>
+          <li><a href="https://pytorch.org/vision/main/models.html">https://pytorch.org/vision/main/models.html</a><br />[Pretrained models from Pytorch Hub]</li>
+          <li><a href="https://colab.research.google.com/drive/1kHo8VT-onDxbtS3FM77VImG35h_K_Lav?usp=sharing#scrollTo=C5_LglWCs9Iu">https://colab.research.google.com/drive/1kHo8VT-onDxbtS3FM77VImG35h_K_Lav?usp=sharing#scrollTo=C5_LglWCs9Iu</a><br />[Pytorch Tutorial from class for helper methods]</li>
+          <li><a href="https://medium.com/codex/saving-and-loading-transformed-image-tensors-in-pytorch-f37b4daa9658">https://medium.com/codex/saving-and-loading-transformed-image-tensors-in-pytorch-f37b4daa9658</a><br />[Data processing article]</li>
+        </ol>
       </Container>
     </>
   );

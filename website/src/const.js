@@ -1,81 +1,128 @@
-const DATASET_SPLIT_CODE = 
-`# Generate train, val, and test datasets
+const DATASET_SPLIT_CODE = `# Generate train, val, and test datasets
 trainset = torchvision.datasets.ImageFolder(root='birds21wi/train', transform=transform_train)
 testset = torchvision.datasets.ImageFolder(root='birds21wi/testing', transform=transform_test)
 
 # 90:10 split of training set to generate a validation set
-train_split, val_split = random_split(trainset, [int(0.9 * len(trainset) + 1), int( 0.1 * len(trainset))])`
+train_split, val_split = random_split(trainset, [int(0.9 * len(trainset) + 1), int( 0.1 * len(trainset))])`;
 
-const DATA_TRANSFORMS = 
-`# Define transformations for train set
+const DATA_TRANSFORMS = `# Define transformations for train set
 transform_train = transforms.Compose([
-    transforms.Resize(224),
-    transforms.RandomCrop(224, padding=8, padding_mode='edge'), # Take 224x224 crops from padded images
     transforms.RandomHorizontalFlip(),    # 50% of time flip image along y-axis
-    transforms.RandomPerspective(0.25, 0.25),
+    transforms.RandomRotation(30),
     transforms.ToTensor(),
-])`
+    transforms.Normalize(mean=[0.485, 0.456, 0.406],std=[0.229, 0.224, 0.225])
+])`;
 
-const loss_16 = [
-        {
-            label: 'Training',
-            data: [[1,0.7277733087539673],[2,0.5628632307052612],[3,0.5010277032852173],[4,0.44897598028182983],[5,0.37150144577026367],[6,0.3467458486557007],[7,0.29271814227104187],[8,0.27342888712882996],[9,0.28835058212280273],[10,0.22200506925582886],[11,0.24977678060531616],[12,0.2376963198184967],[13,0.25719836354255676],[14,0.20838099718093872],[15,0.22464896738529205],[16,0.18298615515232086],[17,0.20028111338615417],[18,0.14874383807182312],[19,0.1850702166557312],[20,0.15511178970336914],[21,0.16627290844917297],[22,0.1835692673921585],[23,0.18952937424182892],[24,0.1643294394016266],[25,0.18330824375152588],[26,0.1797451674938202],[27,0.14970353245735168],[28,0.1718231588602066],[29,0.1508084088563919],[30,0.1467558741569519],[31,0.13757415115833282],[32,0.14621108770370483],[33,0.1449335515499115],[34,0.14209216833114624],[35,0.12906338274478912],[36,0.14188148081302643],[37,0.1012868881225586],[38,0.10921084880828857],[39,0.10404166579246521],[40,0.10415134578943253]]
-        },
-        {
-            label: 'Validation',
-            data: [[1,0.6069360971450806],[2,0.44498953223228455],[3,0.4678199887275696],[4,0.4080458879470825],[5,0.3285912275314331],[6,0.36436814069747925],[7,0.31778571009635925],[8,0.30233314633369446],[9,0.26812565326690674],[10,0.2640470266342163],[11,0.2831639051437378],[12,0.20586809515953064],[13,0.2679371237754822],[14,0.23119936883449554],[15,0.2230713665485382],[16,0.19795575737953186],[17,0.21876117587089539],[18,0.20139282941818237],[19,0.19550183415412903],[20,0.19647099077701569],[21,0.21617916226387024],[22,0.21672990918159485],[23,0.23683544993400574],[24,0.16284973919391632],[25,0.17515195906162262],[26,0.14868998527526855],[27,0.22473827004432678],[28,0.24270287156105042],[29,0.19730083644390106],[30,0.17956078052520752],[31,0.22036100924015045],[32,0.13836464285850525],[33,0.1429539918899536],[34,0.16661471128463745],[35,0.14151495695114136],[36,0.2231411188840866],[37,0.14775706827640533],[38,0.16615934669971466],[39,0.1730099469423294],[40,0.15801025927066803]]
-        }
-    ]
-
-export const options = {
-    responsive: true,
-    plugins: {
-        legend: {
-        position: 'top'},
-        title: {
-        display: true,
-        text: 'Resnet50 (v2) CrossEntropy Loss vs. Epoch',
-        },
+const options = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: "top",
     },
-    scales: {
-        y: {
-          title: {
-            display: true,
-            text: 'Loss'
-          }
-        },
-        x: {
-          title: {
-            display: true,
-            text: 'Epoch'
-          }
-        },
-      }  
+    title: {
+      display: true,
+      text: "Resnet50 (v2) CrossEntropy Loss vs. Epoch",
+    },
+  },
+  scales: {
+    y: {
+      title: {
+        display: true,
+        text: "Loss",
+      },
+    },
+    x: {
+      title: {
+        display: true,
+        text: "Epoch",
+      },
+    },
+  },
 };
 
-const labels = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
+const resnet_options = {
+  ...options,
+  plugins: {
+    title: {
+      display: true,
+      text: "Resnet50 (v2) CrossEntropy Loss vs. Epoch",
+    },
+  },
+};
 
-export const data = {
-    labels,
-    datasets: [
+const efficientnet_options = {
+  ...options,
+  plugins: {
+    title: {
+      display: true,
+      text: "EfficientNet_v2 CrossEntropy Loss vs. Epoch",
+    },
+  },
+};
+
+const labels = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"];
+
+const resnet_data = {
+  labels,
+  datasets: [
     {
-        label: 'Training',
-        data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        borderColor: 'rgb(255, 99, 132)',
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+      label: "Training",
+      data: [
+        2.988625919994186, 1.6375558893470203, 0.716428503722829,
+        0.4927413358407862, 0.4109168100882979, 0.39446640420047674,
+        0.330974789117189, 0.29359552850398946, 0.2519773317172247,
+        0.2254188564222525,
+      ],
+      borderColor: "rgb(255, 99, 132)",
+      backgroundColor: "rgba(255, 99, 132, 0.5)",
     },
     {
-        label: 'Validation',
-        data: [10, 3, 1, .5, .4, .1, .05, .05, 1.05, .03],
-        borderColor: 'rgb(53, 162, 235)',
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+      label: "Validation",
+      data: [
+        5.2447486295080035, 2.9068508296282802, 0.9140272367201736,
+        0.8268557038303399, 0.8057318879123264, 0.39456819982093627,
+        0.3859594821677635, 0.2965309173431549, 0.31585906516155987,
+        0.3094830174473708,
+      ],
+      borderColor: "rgb(53, 162, 235)",
+      backgroundColor: "rgba(53, 162, 235, 0.5)",
     },
-    ],
+  ],
+};
+
+const efficientnet_data = {
+  labels,
+  datasets: [
+    {
+      label: "Training",
+      data: [
+        3.7846116009777204, 2.2912635168757007, 1.179815260635116,
+        0.86723507230014, 0.7354046673296126, 0.6506264851347957,
+        0.5796684876331308, 0.5250873504751954, 0.4784406052549021,
+        0.452018068969579,
+      ],
+      borderColor: "rgb(255, 99, 132)",
+      backgroundColor: "rgba(255, 99, 132, 0.5)",
+    },
+    {
+      label: "Validation",
+      data: [
+        2.905156659742708, 2.4199750984443504, 1.1521775672467718,
+        1.0653295708039627, 0.9873102972689115, 0.940639273161211,
+        0.8942570020727163, 0.9214688264638045, 0.9132831874661128,
+        0.8960600497791208,
+      ],
+      borderColor: "rgb(53, 162, 235)",
+      backgroundColor: "rgba(53, 162, 235, 0.5)",
+    },
+  ],
 };
 
 export const Constant = {
-    DATASET_SPLIT_CODE,
-    DATA_TRANSFORMS,
-    data,
-    options
-}
+  DATASET_SPLIT_CODE,
+  DATA_TRANSFORMS,
+  efficientnet_data,
+  resnet_options,
+  efficientnet_options,
+  resnet_data,
+};

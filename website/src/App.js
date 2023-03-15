@@ -165,7 +165,7 @@ function App() {
       </Container>
       <Container>
         <SectionHeader>Training Techniques</SectionHeader>
-        <Link>Github</Link>
+        <Link href="https://github.com/ScottyS06/cse455-bird-classification">Github</Link>
         <SectionSubHeader>Transfer Learning</SectionSubHeader>
         For this classification task, I decided to use transfer learning as the
         main approach to developing a high accuracy model. From class, I learned

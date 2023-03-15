@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/cse455-bird-classification/static/css/main.c8ec397d.css",
-    "main.js": "/cse455-bird-classification/static/js/main.8f0f9ac2.js",
+    "main.js": "/cse455-bird-classification/static/js/main.c3847819.js",
     "static/media/transforms.png": "/cse455-bird-classification/static/media/transforms.ae413f8bcf0aa85188c1.png",
     "index.html": "/cse455-bird-classification/index.html",
     "main.c8ec397d.css.map": "/cse455-bird-classification/static/css/main.c8ec397d.css.map",
-    "main.8f0f9ac2.js.map": "/cse455-bird-classification/static/js/main.8f0f9ac2.js.map"
+    "main.c3847819.js.map": "/cse455-bird-classification/static/js/main.c3847819.js.map"
   },
   "entrypoints": [
     "static/css/main.c8ec397d.css",
-    "static/js/main.8f0f9ac2.js"
+    "static/js/main.c3847819.js"
   ]
 }

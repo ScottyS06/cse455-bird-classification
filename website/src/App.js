@@ -109,7 +109,7 @@ function App() {
       </Container>
       <Container>
         <SectionHeader>Data Processing</SectionHeader>
-        <Link href="https://www.kaggle.com/competitions/birds23wi/data">
+        <Link href="https://www.Kaggle.com/competitions/birds23wi/data">
           Bird Classification Dataset
         </Link>
         <SectionSubHeader>Challenges</SectionSubHeader>
@@ -131,7 +131,7 @@ function App() {
           Since the test dataset that was provided did not include labels for
           the images it was difficult to see how well the model was generalizing
           and performing on unseen data. One approach would have been to submit
-          the models predictions to the kaggle competition every time I wanted to
+          the models predictions to the Kaggle competition every time I wanted to
           check the models performance but this was not a feasible or practical
           solution. Thus, I decided to split the training dataset into two sub
           datasets one for training and one for validation. I used a 90-10 split
@@ -152,14 +152,13 @@ function App() {
           speed up the dataloaders. However, the tensors themselves, being very
           large, started taking too much memory in the Kaggle notebook. Also,
           the custom dataset I wrote to load this data made OS calls to open and
-          read files every time the __get_item__ function was called. This also,
+          read files every time the __get_item__ function was called. This also
           slowed down the training process and thus, I decided to just resize the images and save them as jpegs.
         </Description>
         <Description>
           I also performed some data augmentation to make the model generalize
           better. To do this, I used PyTorch's transformation module to perform
-          perspective transformations and image flipping. However, I did not see
-          great impact from the perspective transform.
+          perspective transformations, image flipping, normalization, and rotations.
         </Description>
         <CodeMirror value={Constant.DATA_TRANSFORMS} extensions={[python()]} />
         <TransformsImage alt="transforms" src={transforms}></TransformsImage>
@@ -196,12 +195,12 @@ function App() {
         </Description>
         <SectionSubHeader>Learning Rate and Batch Size</SectionSubHeader>
         <Description>
-          I found from my experiments, learning rate to be the strongest
-          indicator on training performance and continued decrease loss. The
+          From my experiments I found learning rate to be the strongest
+          indicator on training performance and continued decrease in loss. The
           approach I used was to set the learning rate to a larger value such as
           0.1 for the first few epochs and then decrease exponentially once loss
           began to plateau. Also, batch size played an important role in
-          maintaining the model computation within the Google Colab provided
+          maintaining the model computation within the Google Colab and Kaggle provided
           resource limit. I had to tune this parameter to smaller values such as
           32 or 64 for larger models like EfficientNet and ConvNeXt.
         </Description>
@@ -212,7 +211,7 @@ function App() {
             <ListItem>After training on smaller images (224x224) change dataset to large images (512x512)</ListItem>
             My reasoning behind this approach was that after training on smaller images which would likely help identify more high level features such as shape and color of the birds switching to a larger image may help pick out more fine grain details. However, this approach was very wrong. I used the Resnet50 model for this experiment and found that the loss greatly increased after switching to the larger images. This was likely because the model which was good at selecting features for 224x224 images may not be able to identify those features as well in a larger images because the features themselves may look different. Also, with larger images this technique was not effective due to the limited resources offered in Google Colab.
             <ListItem>Use only a training set with more data augmentation</ListItem>
-            With this approach, I hoped to get the model to see more images of birds and thus perform better as well. However, again this model was not successful. The model began overfitting to the data and it was not possible to tell how the model was generalizing since there was no validation set.
+            With this approach, I hoped to get the model to see more images of birds and thus perform better as well. However, again this approach was unsuccessful. The model began overfitting to the data and it was not possible to tell how the model was generalizing since there was no validation set.
           </ol>
         </Description>
       </Container>
@@ -252,18 +251,19 @@ function App() {
           title="Project Video"
           width="420"
           height="315"
-          src="https://www.youtube.com/embed/tgbNymZ7vqY"
+          allow="fullscreen;"
+          src="https://www.youtube.com/embed/J8AB16wwk8M"
         ></ProjectVideo>
       </Container>
       <Container>
         <SectionHeader>What problems did I encounter?</SectionHeader>
         <Description>
           <ol>
-            <ListItem>Google Colab and Kaggle both had a limited amount of computational resources</ListItem>
+            <ListItem>Google Colab and Kaggle both had a limited amount of computational resources.</ListItem>
             This was one of the main challenges I faced. With the limited resources it was difficult to train very large models and I had to be especially mindful of the size of the images I was using for training as well as the batch size. The training process was also very slow so it was difficult to test out hypotheses quickly to determine if they were worth investigating further. This caused me to spend a lot of time on techniques that were not effective and did not improve the overall model performance. 
-            <ListItem>Dataloaders do not work well with GPUs and can consume lots of CPU resources</ListItem>
-            Loading the data directly from dataloaders and performing transformations during the training process was computationally expensive and slow. As described in the <a href="#DataProcessing">Data Processing Section</a>, I tried resizing images and saving them as tensors, however, the custom dataset module I wrote did not load the data effectively and was still slow. I decided to then just resize the images offline keeping them in the same format as the provided kaggle dataset.
-            <ListItem>Test dataset did not contain labels</ListItem>
+            <ListItem>Dataloaders do not work well with GPUs and can consume lots of CPU resources.</ListItem>
+            Loading the data directly from dataloaders and performing transformations during the training process was computationally expensive and slow. As described in the <a href="#DataProcessing">Data Processing Section</a>, I tried resizing images and saving them as tensors, however, the custom dataset module I wrote did not load the data effectively and was still slow. I decided to then just resize the images offline keeping them in the same format as the provided Kaggle dataset.
+            <ListItem>Test dataset did not contain labels.</ListItem>
             Without the test labels there was no way to tell how my models were performing on unseen data. Thus, I had to do some research into common practices to overcome this challenge. I read about K-Fold cross validation but this required running the model through several training loops and since training for a few epochs was already taking a along time, I deemed this method unfeasible. I decided to perform a simple random split of the data to generate a validation set.
           </ol>
         </Description>
@@ -292,7 +292,7 @@ function App() {
           Another technique I used that I hadn't seen others do is to freeze half the layers of the pretrained model. I noticed this helped speed up training in the early epochs but hindered final model performance slightly. This is likely because the early layers are good feature extractors which can be applied to a variety of datasets whereas the later layers may be more specific to the ImageNet dataset. I also tried freezing all the layers and only training a final classification layer but found that this did not work well. Retraining all the weights of the model had the best output, specifically for my highest accuracy training setup (Resnet50 with v2 weights), but also took a very long time to train. This is because calculating the gradients for all the parameters is more computationally expensive than a subset of the parameters. This likely also performed well because the ImageNet weights are a good starting point to train the entire network. By training the entire network, the model became less generalized (likely would not perform well on ImageNet) but more suited for bird classification.
         </Description>
         <Description>
-          Finally, I also tried a few other unusual approaches such as training on small images and then training further on larger images. I have included more information on this experiment in the <a href="#OtherApproaches">Other Approaches Section</a>
+          Finally, I also tried a few other unusual approaches such as training on small images and then training further on larger images. I have included more information on these methods in the <a href="#OtherApproaches">Other Approaches Section</a>.
         </Description>
       </Container>
       <Container>
